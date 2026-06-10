@@ -5,3 +5,5 @@ Link -
 https://www.kaggle.com/code/rounitsrivastava/notebooke-e5-model/edit
 
 You can view the implementation, training process, evaluation metrics, and experiment results directly on Kaggle.
+
+BGE-Large-v1.5 - https://www.kaggle.com/code/rounitsrivastava/notebookbge-large-v1-5
