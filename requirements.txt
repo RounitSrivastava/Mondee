@@ -6,3 +6,4 @@ requests==2.33.1
 tqdm==4.67.3
 colorama==0.4.6
 scikit-learn==1.8.0
+gradio==4.41.0
