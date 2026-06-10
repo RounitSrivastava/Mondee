@@ -26,9 +26,7 @@ RESULTS_DIR = os.path.join(
     "results"
 )
 
-# =====================================================
 # RUN ALL PERSONAS
-# =====================================================
 
 def run_all_personas(
     personas: list[dict],
@@ -58,9 +56,9 @@ def run_all_personas(
     return all_results
 
 
-# =====================================================
+
 # SCORE DISTRIBUTION
-# =====================================================
+
 
 def score_distribution(
     result: dict
@@ -168,9 +166,9 @@ def score_distribution(
     }
 
 
-# =====================================================
+
 # JACCARD SIMILARITY
-# =====================================================
+
 
 def overlap_between(
     result_a: dict,
@@ -218,9 +216,9 @@ def overlap_between(
     )
 
 
-# =====================================================
+
 # OVERLAP MATRIX
-# =====================================================
+
 
 def overlap_matrix(
     all_results: list[dict],
@@ -261,9 +259,9 @@ def overlap_matrix(
     return rows
 
 
-# =====================================================
+
 # GLOBAL SUMMARY
-# =====================================================
+
 
 def build_summary(
     dist_rows: list[dict],
@@ -352,9 +350,9 @@ def build_summary(
     }
 
 
-# =====================================================
+
 # SAVE RESULTS
-# =====================================================
+
 
 def save_results(
     all_results: list[dict],
