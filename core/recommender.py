@@ -23,18 +23,14 @@ import faiss
 from core.vectorizer import embed_query
 from core.indexer import load_index
 
-# =====================================================
 # GLOBAL CACHE
-# =====================================================
 
 _index = None
 _meta = None
 
 TOP_K = 30
 
-# =====================================================
 # LOAD INDEX ONCE
-# =====================================================
 
 def _load_once():
 
@@ -54,9 +50,7 @@ def _load_once():
             f"{_index.ntotal} vectors"
         )
 
-# =====================================================
 # PERSONA -> QUERY
-# =====================================================
 
 def _flatten_persona(
     persona: dict
@@ -175,9 +169,7 @@ def _flatten_persona(
 
     return query.strip()
 
-# =====================================================
 # MAIN RECOMMENDATION
-# =====================================================
 
 def recommend(
     persona: dict,
@@ -199,9 +191,7 @@ def recommend(
         now + timedelta(hours=12)
     )
 
-    # -------------------------------------------------
-    # QUERY
-    # -------------------------------------------------
+   # QUERY
 
     query_string = _flatten_persona(
         persona
@@ -218,9 +208,7 @@ def recommend(
         f"{query_string}"
     )
 
-    # -------------------------------------------------
-    # EMBED QUERY
-    # -------------------------------------------------
+  # EMBED QUERY
 
     query_vector = embed_query(
         query_string
@@ -229,10 +217,7 @@ def recommend(
     faiss.normalize_L2(
         query_vector
     )
-
-    # -------------------------------------------------
     # SEARCH
-    # -------------------------------------------------
 
     search_k = min(
         top_k * 10,
@@ -244,9 +229,7 @@ def recommend(
         search_k
     )
 
-    # -------------------------------------------------
-    # BUILD RESULTS
-    # -------------------------------------------------
+# BUILD RESULTS
 
     recommendations = []
 
@@ -316,9 +299,9 @@ def recommend(
 
             break
 
-    # -------------------------------------------------
+   
     # RESPONSE
-    # -------------------------------------------------
+    
 
     return {
 

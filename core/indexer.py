@@ -30,10 +30,7 @@ from core.vectorizer import (
     lda_transform
 )
 
-# =====================================================
-# PATHS
-# =====================================================
-
+#paths
 INDEX_DIR = os.path.join(
     os.path.dirname(__file__),
     "..",
@@ -50,9 +47,7 @@ META_FILE = os.path.join(
     "experiences_meta.json"
 )
 
-# =====================================================
-# CONFIG
-# =====================================================
+#config
 
 EMBEDDING_WEIGHT = 0.7
 LDA_WEIGHT = 0.3
@@ -61,9 +56,7 @@ BATCH_SIZE = 128
 
 USE_IVF = True
 
-# =====================================================
 # HELPERS
-# =====================================================
 
 def _normalize(x):
 
@@ -84,9 +77,7 @@ def _normalize(x):
     return x / norms
 
 
-# =====================================================
 # BUILD INDEX
-# =====================================================
 
 def build_index(
     experiences: list[dict]
@@ -116,9 +107,7 @@ def build_index(
         for e in experiences
     ]
 
-    # -------------------------------------------------
-    # TRAIN LDA
-    # -------------------------------------------------
+     # TRAIN LDA
 
     print(
         "[indexer] Training LDA..."
@@ -126,9 +115,7 @@ def build_index(
 
     fit_models(texts)
 
-    # -------------------------------------------------
-    # ROBERTA
-    # -------------------------------------------------
+    #models - E5 + LDA
 
     print(
         "[indexer] Creating E5 vectors..."
@@ -157,9 +144,7 @@ def build_index(
         embedding_parts
     )
 
-    # -------------------------------------------------
-    # LDA
-    # -------------------------------------------------
+    #LDA
 
     print(
         "[indexer] Creating topic vectors..."
@@ -169,9 +154,7 @@ def build_index(
         texts
     )
 
-    # -------------------------------------------------
     # NORMALIZE INDIVIDUALLY
-    # -------------------------------------------------
 
     embedding_vectors = _normalize(
         embedding_vectors
@@ -181,9 +164,7 @@ def build_index(
         lda_vectors
     )
 
-    # -------------------------------------------------
-    # WEIGHTED HYBRID
-    # -------------------------------------------------
+# WEIGHTED HYBRID
 
     vectors = np.hstack(
 
@@ -205,9 +186,7 @@ def build_index(
         f"{vectors.shape}"
     )
 
-    # -------------------------------------------------
     # BUILD FAISS
-    # -------------------------------------------------
 
     if USE_IVF and len(vectors) > 5000:
 
@@ -265,9 +244,7 @@ def build_index(
             vectors
         )
 
-    # -------------------------------------------------
     # SAVE INDEX
-    # -------------------------------------------------
 
     faiss.write_index(
         index,
@@ -278,10 +255,7 @@ def build_index(
         f"[indexer] Saved "
         f"{index.ntotal} vectors"
     )
-
-    # -------------------------------------------------
-    # METADATA
-    # -------------------------------------------------
+  # METADATA
 
     metadata = []
 
@@ -320,9 +294,7 @@ def build_index(
     )
 
 
-# =====================================================
 # LOAD INDEX
-# =====================================================
 
 def load_index():
 
