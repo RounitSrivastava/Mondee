@@ -37,6 +37,12 @@ INDEX_DIR = os.path.join(
     "index"
 )
 
+CHECKPOINTS_DIR = os.path.join(
+    os.path.dirname(__file__),
+    "..",
+    "checkpoints"
+)
+
 INDEX_FILE = os.path.join(
     INDEX_DIR,
     "experiences.index"
@@ -48,7 +54,7 @@ META_FILE = os.path.join(
 )
 
 EMBEDDING_CKPT = os.path.join(
-    INDEX_DIR,
+    CHECKPOINTS_DIR,
     "embedding_checkpoint.npy"
 )
 
@@ -88,7 +94,7 @@ def _save_embedding_checkpoint(
 ):
 
     os.makedirs(
-        INDEX_DIR,
+        CHECKPOINTS_DIR,
         exist_ok=True
     )
 
@@ -128,17 +134,17 @@ def _load_embedding_checkpoint():
 
 def _remove_embedding_checkpoint():
 
-    if os.path.exists(
-        EMBEDDING_CKPT
-    ):
-
-        os.remove(
-            EMBEDDING_CKPT
-        )
-
-        print(
-            "[indexer] Embedding checkpoint removed"
-        )
+    # Preserving embedding checkpoint for sharing in PR per user request
+    # if os.path.exists(
+    #     EMBEDDING_CKPT
+    # ):
+    #     os.remove(
+    #         EMBEDDING_CKPT
+    #     )
+    #     print(
+    #         "[indexer] Embedding checkpoint removed"
+    #     )
+    pass
 
 
 # BUILD INDEX
