@@ -37,6 +37,12 @@ INDEX_DIR = os.path.join(
     "index"
 )
 
+CHECKPOINTS_DIR = os.path.join(
+    os.path.dirname(__file__),
+    "..",
+    "checkpoints"
+)
+
 INDEX_FILE = os.path.join(
     INDEX_DIR,
     "experiences.index"
@@ -45,6 +51,11 @@ INDEX_FILE = os.path.join(
 META_FILE = os.path.join(
     INDEX_DIR,
     "experiences_meta.json"
+)
+
+EMBEDDING_CKPT = os.path.join(
+    CHECKPOINTS_DIR,
+    "embedding_checkpoint.npy"
 )
 
 #config
@@ -75,6 +86,65 @@ def _normalize(x):
     )
 
     return x / norms
+
+
+def _save_embedding_checkpoint(
+    vectors: np.ndarray,
+    processed_count: int
+):
+
+    os.makedirs(
+        CHECKPOINTS_DIR,
+        exist_ok=True
+    )
+
+    np.save(
+        EMBEDDING_CKPT,
+        {
+            "vectors": vectors,
+            "processed_count": processed_count
+        }
+    )
+
+
+def _load_embedding_checkpoint():
+
+    if not os.path.exists(
+        EMBEDDING_CKPT
+    ):
+
+        return None
+
+    print(
+        f"\n[indexer] Resuming from embedding checkpoint..."
+    )
+
+    data = np.load(
+        EMBEDDING_CKPT,
+        allow_pickle=True
+    ).item()
+
+    print(
+        f"[indexer] Restored "
+        f"{data['processed_count']} embeddings"
+    )
+
+    return data
+
+
+def _remove_embedding_checkpoint():
+
+    # Preserving embedding checkpoint for sharing in PR per user request
+    # if os.path.exists(
+    #     EMBEDDING_CKPT
+    # ):
+    #     os.remove(
+    #         EMBEDDING_CKPT
+    #     )
+    #     print(
+    #         "[indexer] Embedding checkpoint removed"
+    #     )
+    pass
 
 
 # BUILD INDEX
@@ -121,28 +191,116 @@ def build_index(
         "[indexer] Creating E5 vectors..."
     )
 
-    embedding_parts = []
+    ckpt = _load_embedding_checkpoint()
 
-    for i in tqdm(
-        range(
-            0,
-            len(texts),
-            BATCH_SIZE
-        ),
-        desc="E5-Large-v2"
-    ):
+    if ckpt is not None:
 
-        batch = texts[
-            i:i+BATCH_SIZE
-        ]
+        embedding_vectors = ckpt["vectors"]
 
-        embedding_parts.append(
-            embed_roberta(batch)
+        processed_count = ckpt["processed_count"]
+
+        start_batch = processed_count // BATCH_SIZE
+
+        if start_batch * BATCH_SIZE >= len(
+            texts
+        ):
+
+            final_embeddings = _normalize(
+                embedding_vectors[:len(texts)]
+            )
+
+        else:
+
+            remaining_texts = texts[
+                processed_count:
+            ]
+
+            remaining_parts = []
+
+            for i in tqdm(
+                range(
+                    0,
+                    len(remaining_texts),
+                    BATCH_SIZE
+                ),
+                desc="E5-Large-v2 (resume)"
+            ):
+
+                batch = remaining_texts[
+                    i:i + BATCH_SIZE
+                ]
+
+                remaining_parts.append(
+                    embed_roberta(batch)
+                )
+
+            if not remaining_parts:
+
+                final_embeddings = _normalize(
+                    embedding_vectors[:len(texts)]
+                )
+
+            else:
+
+                remaining_vectors = np.vstack(
+                    remaining_parts
+                )
+
+                full_vectors = np.vstack(
+                    [
+                        embedding_vectors,
+                        remaining_vectors
+                    ]
+                )[:len(texts)]
+
+                final_embeddings = _normalize(
+                    full_vectors
+                )
+
+    else:
+
+        embedding_parts = []
+
+        for i in tqdm(
+            range(
+                0,
+                len(texts),
+                BATCH_SIZE
+            ),
+            desc="E5-Large-v2"
+        ):
+
+            batch = texts[
+                i:i + BATCH_SIZE
+            ]
+
+            batch_embeddings = embed_roberta(
+                batch
+            )
+
+            embedding_parts.append(
+                batch_embeddings
+            )
+
+            processed = min(
+                i + BATCH_SIZE,
+                len(texts)
+            )
+
+            _save_embedding_checkpoint(
+                np.vstack(
+                    embedding_parts
+                ),
+                processed
+            )
+
+        final_embeddings = _normalize(
+            np.vstack(
+                embedding_parts
+            )
         )
 
-    embedding_vectors = np.vstack(
-        embedding_parts
-    )
+    embedding_vectors = final_embeddings
 
     #LDA
 
